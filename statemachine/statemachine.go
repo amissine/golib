@@ -51,14 +51,14 @@ package statemachine
 
 import (
 	"fmt"
-  "reflect"
+	"reflect"
 	"runtime"
-  "strings"
+	"strings"
 	"sync"
 )
 
 // StateFn represents a function that executes at a given state.  "s" represents the new state designation.
-type StateFn func() (StateFn, error)
+type StateFn func() (s StateFn, e error)
 
 // LogFn represents some logging function to handle logging when Executor.Logging(true) is set. It should do
 // variable substituion similar to fmt.Sprintf() does.
@@ -180,7 +180,7 @@ func (e *executor) reset() {
 // fnWrapper does some internal tracking before execute "f".
 func (e *executor) fnWrapper(f StateFn) (StateFn, error) {
 	e.Lock()
-  name := fNameScrub(f)
+	name := fNameScrub(f)
 	e.nodes = append(e.nodes, name)
 	e.currentFn = f
 	e.Unlock()
@@ -218,19 +218,20 @@ func (e *executor) log(s string, i ...interface{}) {
 		e.logger(fmt.Sprintf("StateMachine[%s]: %s", e.name, s), i...)
 	}
 }
+
 // fNameScrub gets the name of funtion "f", removes package information and trailing stuff we
 // don't care about and returns it.
 func fNameScrub(f StateFn) string {
-  v := reflect.ValueOf(f)
-  pc := runtime.FuncForPC(v.Pointer())
-  return fScrub(pc.Name())
+	v := reflect.ValueOf(f)
+	pc := runtime.FuncForPC(v.Pointer())
+	return fScrub(pc.Name())
 }
 
 // fScrub does the actual name scrub for fNameScrub. It is split out to allow the tests to scrub
 // the name. The tests use a different way to get the function name.
 func fScrub(s string) string {
-  sp := strings.SplitAfter(s, ".")
-  return strings.TrimSuffix(sp[len(sp)-1], "-fm")
+	sp := strings.SplitAfter(s, ".")
+	return strings.TrimSuffix(sp[len(sp)-1], "-fm")
 }
 
 // MockExecutor implements Executor. It can be used in tests where you only need to test something happened.

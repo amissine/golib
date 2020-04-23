@@ -262,11 +262,11 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 166 - ((27 * winheight(0) + 23) / 46)
+let s:l = 266 - ((45 * winheight(0) + 23) / 46)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-166
+266
 normal! 0
 tabnext
 edit statemachine/statemachine_test.go
@@ -341,7 +341,7 @@ setlocal define=
 setlocal dictionary=
 setlocal nodiff
 setlocal equalprg=
-setlocal errorformat=
+setlocal errorformat=%-G#\ %.%#,%-G%.%#panic:\ %m,%Ecan't\ load\ package:\ %m,%A%\\%%(%[%^:]%\\+:\ %\\)%\\?%f:%l:%c:\ %m,%A%\\%%(%[%^:]%\\+:\ %\\)%\\?%f:%l:\ %m,%C%*\\s%m,%-G%.%#
 setlocal noexpandtab
 if &filetype != 'go'
 setlocal filetype=go
@@ -432,12 +432,12 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 23) / 46)
+let s:l = 99 - ((45 * winheight(0) + 23) / 46)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
-normal! 0
+99
+normal! 07|
 tabnext
 edit main_test.go
 set splitbelow splitright
@@ -772,20 +772,21 @@ setlocal nowinfixwidth
 setlocal wrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 1 - ((0 * winheight(0) + 23) / 46)
+let s:l = 34 - ((33 * winheight(0) + 23) / 46)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-1
-normal! 0
-tabnext 1
+34
+normal! 04|
+tabnext 4
 set stal=1
-badd +26 main.go
 badd +1 statemachine/statemachine.go
-badd +1 statemachine/statemachine_test.go
+badd +52 statemachine/statemachine_test.go
 badd +1 main_test.go
+badd +0 main.go
 badd +997 /usr/local/go/src/flag/flag.go
 badd +15 /usr/local/go/src/os/proc.go
+badd +546 /usr/local/go/src/runtime/symtab.go
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0
   silent exe 'bwipe ' . s:wipebuf
 endif
@@ -797,6 +798,7 @@ if file_readable(s:sx)
   exe "source " . fnameescape(s:sx)
 endif
 let &so = s:so_save | let &siso = s:siso_save
+nohlsearch
 doautoall SessionLoadPost
 unlet SessionLoad
 " vim: set ft=vim :

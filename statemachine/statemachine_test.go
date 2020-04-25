@@ -3,7 +3,7 @@ package statemachine
 import (
 	"fmt"
 	"runtime"
-  "strings"
+	"strings"
 	"testing"
 
 	"github.com/kr/pretty"
@@ -15,13 +15,13 @@ type StateMachine struct {
 	callTrace []string
 }
 
-// Start implements StateFn.
+// Start is a StateFn.
 func (s *StateMachine) Start() (StateFn, error) {
 	s.trace()
 	return s.Middle, nil
 }
 
-// Middle implements StateFn.
+// Middle is a StateFn.
 func (s *StateMachine) Middle() (StateFn, error) {
 	s.trace()
 	if s.err {
@@ -30,13 +30,13 @@ func (s *StateMachine) Middle() (StateFn, error) {
 	return s.End, nil
 }
 
-// End implements StateFn.
+// End is a StateFn.
 func (s *StateMachine) End() (StateFn, error) {
 	s.trace()
 	return nil, nil
 }
 
-// Error implements StateFn.
+// Error is a StateFn.
 func (s *StateMachine) Error() (StateFn, error) {
 	s.trace()
 	return nil, fmt.Errorf("error")
@@ -53,53 +53,53 @@ func (s *StateMachine) trace() {
 }
 
 type logging struct {
-  msgs []string
+	msgs []string
 }
 
 func (l *logging) Log(s string, i ...interface{}) {
-  l.msgs = append(l.msgs, fmt.Sprintf(s, i...))
+	l.msgs = append(l.msgs, fmt.Sprintf(s, i...))
 }
 
 func TestExecutor(t *testing.T) {
 	tests := []struct {
-		desc string
-		err  bool
-    shouldLog bool
-    log []string
+		desc      string
+		err       bool
+		shouldLog bool
+		log       []string
 	}{
 		{
 			desc: "With error in state machine execution",
-			err: true,
+			err:  true,
 		},
 		{
-			desc: "Success",
-      shouldLog: true,
-      log: []string{
-        "StateMachine[tester]: StateFn(Start) starting",
-        "StateMachine[tester]: StateFn(Start) finished",
-        "StateMachine[tester]: StateFn(Middle) starting",
-        "StateMachine[tester]: StateFn(Middle) finished",
-        "StateMachine[tester]: StateFn(End) starting",
-        "StateMachine[tester]: StateFn(End) finished",
-        "StateMachine[tester]: Execute() completed with no issues",
-        "StateMachine[tester]: The following is the StateFn's called with this execution:",
-        "StateMachine[tester]: \tStart",
-        "StateMachine[tester]: \tMiddle",
-        "StateMachine[tester]: \tEnd",
-      },
+			desc:      "Success",
+			shouldLog: true,
+			log: []string{
+				"StateMachine[tester]: StateFn(Start) starting",
+				"StateMachine[tester]: StateFn(Start) finished",
+				"StateMachine[tester]: StateFn(Middle) starting",
+				"StateMachine[tester]: StateFn(Middle) finished",
+				"StateMachine[tester]: StateFn(End) starting",
+				"StateMachine[tester]: StateFn(End) finished",
+				"StateMachine[tester]: Execute() completed with no issues",
+				"StateMachine[tester]: The following is the StateFn's called with this execution:",
+				"StateMachine[tester]: \tStart",
+				"StateMachine[tester]: \tMiddle",
+				"StateMachine[tester]: \tEnd",
+			},
 		},
 	}
 
 	sm := &StateMachine{}
 	for _, test := range tests {
-    sm.err = test.err
-    l := &logging{}
+		sm.err = test.err
+		l := &logging{}
 		exec := New("tester", sm.Start, Reset(sm.reset), LogFacility(l.Log))
-    if test.shouldLog {
-      exec.Log(true)
-    }else{
-      exec.Log(false)
-    }
+		if test.shouldLog {
+			exec.Log(true)
+		} else {
+			exec.Log(false)
+		}
 
 		err := exec.Execute()
 		switch {
@@ -115,12 +115,12 @@ func TestExecutor(t *testing.T) {
 			t.Errorf("Test %q: node trace was no accurate got/want diff:\n%s", test.desc, strings.Join(diff, "\n"))
 		}
 
-    if diff := pretty.Diff(l.msgs, test.log); len(diff) != 0 {
-      t.Errorf("Test %q: log was not as expected:\n%s", test.desc, strings.Join(diff, "\n"))
-    }
+		if diff := pretty.Diff(l.msgs, test.log); len(diff) != 0 {
+			t.Errorf("Test %q: log was not as expected:\n%s", test.desc, strings.Join(diff, "\n"))
+		}
 	}
 }
 
 func TestMock(t *testing.T) {
-  var _ Executor = &MockExecutor{}
+	var _ Executor = &MockExecutor{}
 }

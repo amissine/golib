@@ -1,11 +1,11 @@
-package statemachine
+package statemachine // {{{1
 
 import (
 	"fmt"
 	"log"
 )
 
-// StateMachine provides a simple state machine for testing the Executor.
+// StateMachine provides a simple state machine for testing the Executor. {{{1
 /*
 type StateMachine struct {
 	err       bool
@@ -49,7 +49,7 @@ func (sm *StateMachineBasic) Consume() {
 	}
 }
 
-type Consumer struct {
+type Consumer struct { // {{{1
 	Listener chan Event
 }
 
@@ -57,7 +57,7 @@ type Event interface {
 	Act()
 }
 
-func (c *Consumer) ConsumeEvents() {
+func (c *Consumer) ConsumeEvents() { // {{{2
 	go func() {
 		for e := range c.Listener {
 			log.Printf("- e %+v\n", e)
@@ -67,7 +67,7 @@ func (c *Consumer) ConsumeEvents() {
 	}()
 }
 
-type EventImpl struct {
+type EventImpl struct { // {{{2
 	Next    *EventImpl
 	Pipe    chan Event
 	visited bool
@@ -83,4 +83,39 @@ func (e *EventImpl) Act() {
 	fmt.Printf("%s ", e.Msg)
 	e.Pipe <- e.Next
 	close(e.Pipe)
+} // }}}2
+
+type Exchange struct { // {{{1
+	LocalListener  chan OfferOut
+	RemoteListener chan OfferIn
+}
+
+type OfferOut interface {
+	Event
+}
+
+type OfferIn interface {
+	Event
+}
+
+func (e *Exchange) ConsumeOffers() { // {{{2
+	go func() {
+		for {
+			select {
+			case oo := <-e.LocalListener:
+				oo.Act()
+			case oi := <-e.RemoteListener:
+				oi.Act()
+			}
+		}
+	}()
+}
+
+type Add struct {
+	RemoteListener chan OfferIn
+	Offer          OfferIn
+}
+
+func (add *Add) Act() {
+	add.RemoteListener <- add.Offer
 }
